@@ -1,2 +1,2 @@
 # neurally
-A crateless neural network classfier in Rust
+A neural network classfier in Rust
