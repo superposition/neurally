@@ -118,9 +118,9 @@ pub fn backward_prop(
 }
 
 pub fn update_params(
-    w1: Array1<f64>, 
+    w1: Array2<f64>, 
     b1: Array1<f64>, 
-    w2: Array1<f64>, 
+    w2: Array2<f64>, 
     b2: Array1<f64>, 
     dw1: f64, 
     db1: f64, 
@@ -128,10 +128,10 @@ pub fn update_params(
     db2:f64, 
     alpha: f64
 ) -> (Array2<f64>, Array1<f64>, Array2<f64>, Array1<f64>) {
-    w1 = w1 - alpha * dw1;
-    b1 = b1 - alpha * db1;
-    w2 = w2 - alpha * dw2;
-    b2 = b2 - alpha * db2;
+    let w1 = w1 - alpha * dw1;
+    let b1 = b1 - alpha * db1;
+    let w2 = w2 - alpha * dw2;
+    let b2 = b2 - alpha * db2;
     (w1, b1, w2, b2)
 }
 
