@@ -145,10 +145,17 @@ pub fn  get_predictions(a2: Array2<f64>) -> Array1<f64> {
     predictions
 }
 
-
-// def get_accuracy(predictions, Y) -> f64:
-//     print(predictions, Y)
-//     return np.sum(predictions == Y) / Y.size
+pub fn get_accuracy(predictions: Array1<f64>, y: Array1<f64>) -> f64 {
+    // print(predictions, Y)
+    let mut matches = 0.0;
+    for i in 0..y.shape()[0] {
+        if predictions[i] == y[i] {
+            matches += 1.0;
+        }
+    }
+    matches / y.shape()[0] as f64
+}
+    //ndarray.sum(predictions == Y) / Y.size
 
 // def gradient_descent(X, Y, alpha, iterations):
 //     W1, b1, W2, b2 = init_params()
