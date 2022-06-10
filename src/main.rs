@@ -9,9 +9,6 @@ fn main() {
     let df = mnist_df().unwrap();
     println!("{:?}", df.head(Some(10)));  
     let data = df.to_ndarray::<Float64Type>().unwrap();
-
-    //covert to u8
-    //let data = data.mapv(|x| x as u8);
     let m: usize = data.shape()[0] as usize;
     let n: usize = data.shape()[1] as usize;
 
@@ -19,7 +16,7 @@ fn main() {
 
     println!("{:?}", (m, n));
 
-    let data_dev = data.slice(s![0..total, ..]).t().to_owned();
+    let _data_dev = data.slice(s![0..total, ..]).t().to_owned();
     let ydev = data.slice(s![0, ..]).to_owned();
     println!("ydev {:?}", ydev);
 
@@ -35,7 +32,7 @@ fn main() {
     let x_train = data_train.slice(s![1..n, ..]).to_owned();
     println!("x_train {:?}", x_train);
 
-    println!("y_one_hot \n{:?}", one_hot(y_train));
+    println!("y_one_hot \n{:?}", one_hot(&y_train));
 
     
 
