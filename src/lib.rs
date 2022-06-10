@@ -101,9 +101,7 @@ pub fn ReLU_derivative(x: Array1<f64>) -> Array1<f64> {
 pub fn backward_prop(
     z1: Array1<f64>, 
     a1: Array1<f64>, 
-    z2: Array1<f64>, 
-    a2: Array2<f64>, 
-    w1: Array1<f64>, 
+    a2: Array2<f64>,  
     w2: Array1<f64>,
     x: Array1<f64>, 
     y: Array1<f64>
@@ -117,6 +115,24 @@ pub fn backward_prop(
     let dw1 = 1.0 / m * dz1.dot(&x.t());
     let db1 = 1.0 / m * dz1.sum();
     (dw1, db1, dw2, db2)
+}
+
+pub fn update_params(
+    w1: Array1<f64>, 
+    b1: Array1<f64>, 
+    w2: Array1<f64>, 
+    b2: Array1<f64>, 
+    dw1: f64, 
+    db1: f64, 
+    dw2: Array1<f64> , 
+    db2:f64, 
+    alpha: f64
+) -> (Array2<f64>, Array1<f64>, Array2<f64>, Array1<f64>) {
+    w1 = w1 - alpha * dw1;
+    b1 = b1 - alpha * db1;
+    w2 = w2 - alpha * dw2;
+    b2 = b2 - alpha * db2;
+    (w1, b1, w2, b2)
 }
 
 #[cfg(test)]
