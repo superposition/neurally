@@ -32,7 +32,7 @@ mod tests {
 }
 
 
-pub fn init_params() -> (Array2<f64>, Array1<f64>, Array2<f64>, Array1<f64>) {
+pub fn init_params() -> (Array2<f64>, Array1<f64>, Array2<f64>, Array1<f64>) { // correct
     let normal = Normal::new(0.0, 1.0).unwrap();
 
     let w1 = Array::random((10, 784), normal);
@@ -51,25 +51,16 @@ pub fn ReLU(x: f64) -> f64 {
     }
 }
 
-pub fn softmax(x: &Array1<f64>) -> Array1<f64> {
-    let mut x = x.clone();
-    let mut max = x[0];
-    for i in 1..x.len() {
-        if x[i] > max {
-            max = x[i];
-        }
-    }
-    x = x - max;
-    x = x.mapv(|x| ReLU(x));
-    let sum = x.iter().sum::<f64>();
-    x = x / sum;
-    x
+pub fn softmax(x: &Array1<f64>) -> Array1<f64> { // correct
+    let e: f64 = 2.718281828459;
+    let exp = x.mapv(|n| e.powf(n));
+    exp / &exp.sum()
 }
 
 
 pub fn forward_prop(
     w1: Array2<f64>, b1: Array1<f64>, w2: Array2<f64>, b2: Array1<f64>, x: Array1<f64>
-) -> (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>) {
+) -> (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>) { // correct
     let z1 = w1.dot(&x) + &b1;
     let a1 = z1.mapv(|x| ReLU(x));
     let z2 = w2.dot(&a1) + &b2;
@@ -136,13 +127,32 @@ pub fn update_params(
     (w1, b1, w2, b2)
 }
 
-pub fn get_predictions(a2: Array2<f64>) -> Array1<f64> {
-    // get an float array of the predictions
-    let mut predictions = Array::zeros(a2.shape()[0]);
-    for i in 0..a2.shape()[0] {
-        predictions[i] = a2[(i, a2.slice(s![i, ..]).argmax().unwrap())]
+//test get_prediction
+#[cfg(tests)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_prediction() {
+        let (w1, b1, w2, b2) = init_params();
+        let x = Array::from_vec(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]);
+        let (z1, a1, z2, a2) = forward_prop(w1, b1, w2, b2, x);
+        println(&a2);
+        let y = get_predictions(a2);
+        println!("{:?}", y);
+        assert_eq!(y, 0);
     }
-    predictions
+}
+
+pub fn get_predictions(a2: Array1<f64>) ->usize {
+    //get an float array of the predictions
+    //xlet mut predictions = Array::zeros(a2.shape()[0]);
+
+    // for i in 0..a2.shape()[0] {
+    //     predictions[i] = a2[(i, a2.argmax().unwrap())]
+    // }
+    a2.argmax().unwrap()
+
 }
 
 pub fn get_accuracy(predictions: Array1<f64>, y: Array1<f64>) -> f64 {
@@ -156,22 +166,22 @@ pub fn get_accuracy(predictions: Array1<f64>, y: Array1<f64>) -> f64 {
     matches / y.shape()[0] as f64
 }
 
-pub fn gradient_descent(
-    x: Array1<f64>, y:Array1<f64>, alpha:f64, iterations:usize
-) -> (Array2<f64>, Array1<f64>, Array2<f64>, Array1<f64>) {
-    let (w1, b1, w2, b2) = init_params();
-    for i in 0..iterations {
-        let (z1, a1, z2, a2) = forward_prop(w1, b1, w2, b2, x);
-        let (dW1, db1, dW2, db2) = backward_prop(z1, a1, a2, w2, x, y);
-        (w1, b1, w2, b2) = update_params(w1, b1, w2, b2, dW1, db1, dW2, db2, alpha);
-        if i % 10 == 0 {
-            println!("Iteration: {:?}", i);
-            let predictions = get_predictions(a2);
-            println!("{:?}", get_accuracy(predictions, y))
-        }
-    }
-    (w1, b1, w2, b2)
-}
+// pub fn gradient_descent(
+//     x: Array1<f64>, y:Array1<f64>, alpha:f64, iterations:usize
+// ) -> (Array2<f64>, Array1<f64>, Array2<f64>, Array1<f64>) {
+//     let (w1, b1, w2, b2) = init_params();
+//     for i in 0..iterations {
+//         let (z1, a1, z2, a2) = forward_prop(w1, b1, w2, b2, x);
+//         let (dW1, db1, dW2, db2) = backward_prop(z1, a1, a2, w2, x, y);
+//         (w1, b1, w2, b2) = update_params(w1, b1, w2, b2, dW1, db1, dW2, db2, alpha);
+//         if i % 10 == 0 {
+//             println!("Iteration: {:?}", i);
+//             let predictions = get_predictions(a2);
+//             println!("{:?}", get_accuracy(predictions, y))
+//         }
+//     }
+//     (w1, b1, w2, b2)
+// }
 
 
 
