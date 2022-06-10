@@ -1,11 +1,12 @@
 use rand::{Rng, thread_rng};
 use polars::prelude::*;
 use ndarray::prelude::*;
+use ndarray_rand::rand_distr::Normal;
 use std::fs::File;
 use std::sync::Arc;
 
 
-fn mnist_df() -> Result<DataFrame> {
+pub fn mnist_df() -> Result<DataFrame> {
     let file = File::open("mnist.csv")
                     .expect("could not read file");
 
@@ -14,6 +15,36 @@ fn mnist_df() -> Result<DataFrame> {
             .has_header(true)
             .finish()
 }
+
+pub fn init_params() -> (
+        ndarray_rand::rand_distr::Normal<f64>, 
+        ndarray_rand::rand_distr::Normal<f64>, 
+        ndarray_rand::rand_distr::Normal<f64>, 
+        ndarray_rand::rand_distr::Normal<f64>
+    ){
+    let mut rng = thread_rng();
+    let mut params = Array2::<f64>::zeros((784, 10));
+    let w1 = Normal::new(10.0, 784.0).unwrap();
+    let b1 = Normal::new(10.0, 1.0).unwrap();
+    let w2 = Normal::new(10.0, 10.0).unwrap();
+    let b2 = Normal::new(10.0, 1.0).unwrap();
+
+    (w1, b1, w2, b2)
+}
+
+// pub fn init_params() -> ndarray::Array2<f64> {
+//     let mut rng = thread_rng();
+//     let mut params = Array2::<f64>::zeros((784, 10));
+//     for i in 0..10 {
+//         let mut row = Array1::<f64>::zeros(784);
+//         for j in 0..784 {
+//             row[j] = rng.gen_range(-0.1, 0.1);
+//         }
+//         params.slice_mut(s![.., i]).assign(&row);
+//     }
+//     params
+// }
+
 
 #[cfg(test)]
 mod tests {
