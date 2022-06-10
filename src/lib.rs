@@ -50,7 +50,7 @@ pub fn ReLU(x: f64) -> f64 {
     }
 }
 
-pub fn softmax (x: &Array1<f64>) -> Array1<f64> {
+pub fn softmax(x: &Array1<f64>) -> Array1<f64> {
     let mut x = x.clone();
     let mut max = x[0];
     for i in 1..x.len() {
@@ -66,8 +66,6 @@ pub fn softmax (x: &Array1<f64>) -> Array1<f64> {
 }
 
 
-
-
 pub fn forward_prop(x: Array1<f64>, params: (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>)) -> (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>){
     let (w1, b1, w2, b2) = params;
     let mut z1 = w1.dot(&x) + &b1;
@@ -78,8 +76,19 @@ pub fn forward_prop(x: Array1<f64>, params: (Array1<f64>, Array1<f64>, Array1<f6
     (z1, a1, z2, a2)
 }
 
+pub fn one_hot(y: Array1<u8>) -> Array1<u8> {
+    let mut y = y.clone();
+    let mut y_one_hot = Array::zeros(10);
+    y_one_hot[y[0] as usize] = 1;
+    y_one_hot
+}
 
+// pub fn one_hot(y: usize, n_classes: usize) -> Array1<f64> {
+//     let mut y_one_hot = Array::zeros(n_classes);
+//     y_one_hot[y] = 1.0;
+//     y_one_hot
 
+// }
 
 #[cfg(test)]
 mod tests {
