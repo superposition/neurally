@@ -8,10 +8,10 @@ fn main() {
 
     let df = mnist_df().unwrap();
     println!("{:?}", df.head(Some(10)));  
-    let data = df.to_ndarray::<UInt64Type>().unwrap();
+    let data = df.to_ndarray::<Float64Type>().unwrap();
 
     //covert to u8
-    let data = data.mapv(|x| x as u8);
+    //let data = data.mapv(|x| x as u8);
     let m: usize = data.shape()[0] as usize;
     let n: usize = data.shape()[1] as usize;
 

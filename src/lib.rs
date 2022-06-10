@@ -66,26 +66,58 @@ pub fn softmax(x: &Array1<f64>) -> Array1<f64> {
 }
 
 
-pub fn forward_prop(x: Array1<f64>, params: (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>)) -> (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>){
-    let (w1, b1, w2, b2) = params;
-    let mut z1 = w1.dot(&x) + &b1;
-    let mut a1 = z1.mapv(|x| ReLU(x));
-    let mut z2 = w2.dot(&a1) + &b2;
-    let mut a2 = softmax(&z2);
+pub fn forward_prop(
+    w1: Array1<f64>, b1: Array1<f64>, w2: Array1<f64>, b2: Array1<f64>, x: Array1<f64>
+) -> (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>) {
+    let z1 = w1.dot(&x) + &b1;
+    let a1 = z1.mapv(|x| ReLU(x));
+    let z2 = w2.dot(&a1) + &b2;
+    let a2 = softmax(&z2);
 
     (z1, a1, z2, a2)
 }
 
-pub fn one_hot(y: Array1<u8>) -> Array2<u8> {
+pub fn one_hot(y: Array1<f64>) -> Array2<f64> {
     let y = y.clone();
     let mut y_one_hot = Array::zeros((y.shape()[0], 10));
     for i in 0..y.len() {
-        y_one_hot[(i, y[i] as usize)] = 1;
+        y_one_hot[(i, y[i] as usize)] = 1.0;
     }
     y_one_hot.t().to_owned()
 
 }
 
+pub fn ReLU_derivative(x: Array1<f64>) -> Array1<f64> {
+    let mut x = x.clone();
+    for i in 0..x.len() {
+        if x[i] < 0.0 {
+            x[i] = 0.0;
+        }
+    }
+    x
+}
+
+// backprop 
+pub fn backward_prop(
+    z1: Array1<f64>, 
+    a1: Array1<f64>, 
+    z2: Array1<f64>, 
+    a2: Array2<f64>, 
+    w1: Array1<f64>, 
+    w2: Array1<f64>,
+    x: Array1<f64>, 
+    y: Array1<f64>
+) -> (f64, f64, Array1<f64>, f64) {
+    let m = a2.shape()[0] as f64;
+    let one_hot_y = one_hot(y);
+    let dz2 = a2 - &one_hot_y;
+    let dw2 = 1.0 / m * dz2.dot(&a1.t());
+    let db2 = 1.0 / m * dz2.sum();
+    let dz1 = w2.t().dot(&dz2) * &ReLU_derivative(z1);
+    let dw1 = 1.0 / m * dz1.dot(&x.t());
+    let db1 = 1.0 / m * dz1.sum();
+    (dw1, db1, dw2, db2)
+}
 
 #[cfg(test)]
 mod tests {
