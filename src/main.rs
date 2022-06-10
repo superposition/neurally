@@ -1,4 +1,4 @@
-use neurally::mnist_df;
+use neurally::*;
 use polars::prelude::*;
 use ndarray::prelude::*;
 
@@ -19,21 +19,24 @@ fn main() {
 
     println!("{:?}", (m, n));
 
-    let data_dev = data.slice(s![0..total, 1]).t();
-    let ydev = data.slice(s![0, 1]);
-    print!("{:?}", ydev);
+    let data_dev = data.slice(s![0..total, ..]).t().to_owned();
+    let ydev = data.slice(s![0, ..]).to_owned();
+    println!("ydev {:?}", ydev);
 
     
-    let xdev = data.slice(s![1..n, 1]);
-    print!("{:?}", xdev);
+    let xdev = data.slice(s![1..n, ..]).to_owned();
+    println!("xdev {:?}", xdev);
 
-    let data_train = data.slice(s![total..m, 1]);
-    let data_train = data_train.t();
+    let data_train = data.slice(s![total..m, ..]).to_owned();
+    let data_train = data_train.t().to_owned();
     
-    let y_train = data_train.slice(s![0]);
-    print!("{:?}", y_train);
-    let x_train = data_train.slice(s![1..n]);
-    print!("{:?}", x_train);
+    let y_train = data_train.slice(s![0, ..]).to_owned();
+    println!("y_train {:?}", y_train);
+    let x_train = data_train.slice(s![1..n, ..]).to_owned();
+    println!("x_train {:?}", x_train);
 
+    println!("y_one_hot \n{:?}", one_hot(y_train));
+
+    
 
 }

@@ -76,19 +76,16 @@ pub fn forward_prop(x: Array1<f64>, params: (Array1<f64>, Array1<f64>, Array1<f6
     (z1, a1, z2, a2)
 }
 
-pub fn one_hot(y: Array1<u8>) -> Array1<u8> {
-    let mut y = y.clone();
-    let mut y_one_hot = Array::zeros(10);
-    y_one_hot[y[0] as usize] = 1;
-    y_one_hot
+pub fn one_hot(y: Array1<u8>) -> Array2<u8> {
+    let y = y.clone();
+    let mut y_one_hot = Array::zeros((y.shape()[0], 10));
+    for i in 0..y.len() {
+        y_one_hot[(i, y[i] as usize)] = 1;
+    }
+    y_one_hot.t().to_owned()
+
 }
 
-// pub fn one_hot(y: usize, n_classes: usize) -> Array1<f64> {
-//     let mut y_one_hot = Array::zeros(n_classes);
-//     y_one_hot[y] = 1.0;
-//     y_one_hot
-
-// }
 
 #[cfg(test)]
 mod tests {
