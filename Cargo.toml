@@ -9,4 +9,5 @@ edition = "2021"
 rand = "*"
 ndarray = "0.15.4"
 ndarray-rand = "*"
+ndarray-stats = "*"
 polars = { version = "0.22.4", features = ["lazy", "polars-io", "ndarray", "dtype-u8", "random"] }

@@ -4,6 +4,7 @@ use ndarray::prelude::*;
 use ndarray_rand::rand_distr::{Normal, NormalError, Distribution};
 use ndarray_rand::rand::{Rng, RngCore};
 use ndarray_rand::RandomExt;
+use ndarray_stats::QuantileExt;
 use std::fs::File;
 use std::sync::Arc;
 
@@ -134,6 +135,38 @@ pub fn update_params(
     let b2 = b2 - alpha * db2;
     (w1, b1, w2, b2)
 }
+
+pub fn  get_predictions(a2: Array2<f64>) -> Array1<f64> {
+    // get an float array of the predictions
+    let mut predictions = Array::zeros(a2.shape()[0]);
+    for i in 0..a2.shape()[0] {
+        predictions[i] = a2[(i, a2.slice(s![i, ..]).argmax().unwrap())]
+    }
+    predictions
+}
+
+
+// def get_accuracy(predictions, Y) -> f64:
+//     print(predictions, Y)
+//     return np.sum(predictions == Y) / Y.size
+
+// def gradient_descent(X, Y, alpha, iterations):
+//     W1, b1, W2, b2 = init_params()
+//     for i in range(iterations):
+//         Z1, A1, Z2, A2 = forward_prop(W1, b1, W2, b2, X)
+//         dW1, db1, dW2, db2 = backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y)
+//         W1, b1, W2, b2 = update_params(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha)
+//         if i % 10 == 0:
+//             print("Iteration: ", i)
+//             predictions = get_predictions(A2)
+//             print(get_accuracy(predictions, Y))
+//     return W1, b1, W2, b2
+
+
+
+
+
+
 
 #[cfg(test)]
 mod tests {
