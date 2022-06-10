@@ -1,7 +1,9 @@
-use rand::{Rng, thread_rng};
+use rand::{thread_rng};
 use polars::prelude::*;
 use ndarray::prelude::*;
-use ndarray_rand::rand_distr::Normal;
+use ndarray_rand::rand_distr::{Normal, NormalError, Distribution};
+use ndarray_rand::rand::{Rng, RngCore};
+use ndarray_rand::RandomExt;
 use std::fs::File;
 use std::sync::Arc;
 
@@ -15,35 +17,68 @@ pub fn mnist_df() -> Result<DataFrame> {
             .has_header(true)
             .finish()
 }
+//test init_params 
 
-pub fn init_params() -> (
-        ndarray_rand::rand_distr::Normal<f64>, 
-        ndarray_rand::rand_distr::Normal<f64>, 
-        ndarray_rand::rand_distr::Normal<f64>, 
-        ndarray_rand::rand_distr::Normal<f64>
-    ){
-    let mut rng = thread_rng();
-    let mut params = Array2::<f64>::zeros((784, 10));
-    let w1 = Normal::new(10.0, 784.0).unwrap();
-    let b1 = Normal::new(10.0, 1.0).unwrap();
-    let w2 = Normal::new(10.0, 10.0).unwrap();
-    let b2 = Normal::new(10.0, 1.0).unwrap();
+#[cfg(tests)]
+mod tests {
+    use super::*;
 
+    #[test]
+    fn test_init_params() {
+        let intial_params = init_params();
+        assert_eq!(intial_params.len(), 4);
+    }
+}
+
+
+pub fn init_params() -> (Array2<f64>, Array1<f64>, Array2<f64>, Array1<f64>) {
+    let normal = Normal::new(0.0, 1.0).unwrap();
+
+    let w1 = Array::random((10, 784), normal);
+    let b1 = Array::random(10, normal);
+    let w2 = Array::random((10, 10), normal);
+    let b2 = Array::random(10, normal);
+    
     (w1, b1, w2, b2)
 }
 
-// pub fn init_params() -> ndarray::Array2<f64> {
-//     let mut rng = thread_rng();
-//     let mut params = Array2::<f64>::zeros((784, 10));
-//     for i in 0..10 {
-//         let mut row = Array1::<f64>::zeros(784);
-//         for j in 0..784 {
-//             row[j] = rng.gen_range(-0.1, 0.1);
-//         }
-//         params.slice_mut(s![.., i]).assign(&row);
-//     }
-//     params
-// }
+pub fn ReLU(x: f64) -> f64 {
+    if x < 0.0 {
+        0.0
+    } else {
+        x
+    }
+}
+
+pub fn softmax (x: &Array1<f64>) -> Array1<f64> {
+    let mut x = x.clone();
+    let mut max = x[0];
+    for i in 1..x.len() {
+        if x[i] > max {
+            max = x[i];
+        }
+    }
+    x = x - max;
+    x = x.mapv(|x| ReLU(x));
+    let sum = x.iter().sum::<f64>();
+    x = x / sum;
+    x
+}
+
+
+
+
+pub fn forward_prop(x: Array1<f64>, params: (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>)) -> (Array1<f64>, Array1<f64>, Array1<f64>, Array1<f64>){
+    let (w1, b1, w2, b2) = params;
+    let mut z1 = w1.dot(&x) + &b1;
+    let mut a1 = z1.mapv(|x| ReLU(x));
+    let mut z2 = w2.dot(&a1) + &b2;
+    let mut a2 = softmax(&z2);
+
+    (z1, a1, z2, a2)
+}
+
+
 
 
 #[cfg(test)]
